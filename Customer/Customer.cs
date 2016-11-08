@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using Customer.Interfaces;
-using Microsoft.ServiceFabric.Data;
-using Microsoft.ServiceFabric.Data.Collections;
+using Microsoft.ServiceFabric.Services.Remoting.Client;
+using Dispatcher.Interfaces;
 
 namespace Customer
 {
@@ -18,39 +15,26 @@ namespace Customer
     [StatePersistence(StatePersistence.None)]
     internal class Customer : Actor, ICustomer
     {
-        private readonly string _state = "tickets";
+        private readonly Guid _customerId;
+        private readonly Uri _dispatcherUri;
 
         public Customer(ActorService actorService, ActorId actorId)
             : base(actorService, actorId)
         {
+            _customerId = actorId.GetGuidId();
+            _dispatcherUri = new Uri("fabric:/TicketReservation/DispatcherService");
         }
 
         protected override async Task OnActivateAsync()
         {
             ActorEventSource.Current.ActorMessage(this, "Actor activated.");
-
-            await StateManager.TryAddStateAsync(_state, 0);
         }
 
         async Task ICustomer.ReserveTicket()
-        {
-            //var tickets = await StateManager.GetStateAsync<int>(_state);
+        {            
+            var Dispatcher = ServiceProxy.Create<IDispatcher>(_dispatcherUri);
 
-            //await StateManager.SetStateAsync(_state, tickets + 100);
-
-            return;
-        }
-
-        async Task<int> ICustomer.GetTickets()
-        {
-            //var result = await StateManager.GetStateAsync<int>(_state);
-
-            //if (result != default(int))
-            //{
-            //    return result;
-            //}
-
-            return 0;
+            await Dispatcher.Enqueue(_customerId, Guid.NewGuid());
         }
     }
 }

@@ -18,11 +18,5 @@ namespace Customer.Interfaces
         /// </summary>
         /// <returns></returns>
         Task ReserveTicket();
-
-        /// <summary>
-        /// Get tickets
-        /// </summary>
-        /// <returns></returns>
-        Task<int> GetTickets();
     }
 }

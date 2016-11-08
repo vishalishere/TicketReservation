@@ -29,8 +29,8 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Dispatcher\Dispatcher.csproj" />
     <ProjectReference Include="..\Customer\Customer.csproj" />
-    <ProjectReference Include="..\Reservation\Reservation.csproj" />
     <ProjectReference Include="..\Tickets\Tickets.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />

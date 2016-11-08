@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Services.Runtime;
 
-namespace Reservation
+namespace Dispatcher
 {
-    [EventSource(Name = "MyCompany-TicketReservation-Reservation")]
+    [EventSource(Name = "MyCompany-TicketReservation-Dispatcher")]
     internal sealed class ServiceEventSource : EventSource
     {
         public static readonly ServiceEventSource Current = new ServiceEventSource();

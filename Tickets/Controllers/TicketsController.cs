@@ -17,13 +17,6 @@ namespace Tickets.Controllers
             _customerActorUri = new Uri("fabric:/TicketReservation/CustomerActorService");
         }
 
-        public async Task<int> Get(Guid customerId)
-        {
-            var customer = ActorProxy.Create<ICustomer>(new ActorId(customerId), _customerActorUri);
-
-            return await customer.GetTickets();
-        }
-
         public async Task Post([FromBody]Guid? customerId)
         {
             if(!customerId.HasValue)
