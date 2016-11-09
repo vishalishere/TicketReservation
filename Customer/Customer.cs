@@ -5,6 +5,7 @@ using Microsoft.ServiceFabric.Actors.Runtime;
 using Customer.Interfaces;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
 using Dispatcher.Interfaces;
+using Microsoft.ServiceFabric.Services.Client;
 
 namespace Customer
 {
@@ -22,7 +23,7 @@ namespace Customer
             : base(actorService, actorId)
         {
             _customerId = actorId.GetGuidId();
-            _dispatcherUri = new Uri("fabric:/TicketReservation/DispatcherService");
+            _dispatcherUri = new Uri("fabric:/TicketReservation/Dispatcher");
         }
 
         protected override async Task OnActivateAsync()
@@ -32,9 +33,9 @@ namespace Customer
 
         async Task ICustomer.ReserveTicket()
         {            
-            var Dispatcher = ServiceProxy.Create<IDispatcher>(_dispatcherUri);
+            var dispatcher = ServiceProxy.Create<IDispatcher>(_dispatcherUri, new ServicePartitionKey(1));
 
-            await Dispatcher.Enqueue(_customerId, Guid.NewGuid());
+            await dispatcher.Enqueue(_customerId, Guid.NewGuid());
         }
     }
 }

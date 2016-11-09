@@ -4,10 +4,14 @@ using System.Fabric;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 using Dispatcher.Interfaces;
+using MicroServiceFabric.Dispatcher;
+using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceBus.Messaging;
+using Microsoft.ServiceFabric.Data.Collections;
+using Microsoft.ServiceFabric.Services.Remoting.Runtime;
 
 namespace Dispatcher
 {
@@ -16,13 +20,30 @@ namespace Dispatcher
     /// </summary>
     internal sealed class Dispatcher : StatefulService, IDispatcher
     {
+        private readonly IReliableDispatcher<Tuple<Guid, Guid>> _reliableDispatcher;
+        //private static readonly MessagingFactory _messagingFactory;
+
         public Dispatcher(StatefulServiceContext context)
             : base(context)
-        { }
-
-        public Task Enqueue(Guid customerId, Guid ticketId)
         {
-            throw new NotImplementedException();
+            _reliableDispatcher = new ReliableDispatcher<Tuple<Guid, Guid>>(
+                new Lazy<IReliableQueue<Tuple<Guid, Guid>>>(
+                    () => StateManager.GetOrAddAsync<IReliableQueue<Tuple<Guid, Guid>>>("messages").Result),
+                new TransactionFactory(StateManager));
+        }
+
+        //static Dispatcher()
+        //{
+            //var configurationPackage = Context.CodePackageActivationContext.GetConfigurationPackageObject("Config");
+            //var serviceBusSection = configurationPackage.Settings.Sections["ServiceBus"];
+            //var connectionString = serviceBusSection.Parameters["ConnectionString"].Value;
+
+            //_messagingFactory = MessagingFactory.CreateFromConnectionString("Endpoint=sb://ticketreservation.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=NMO82MrIAt6++akSy7ynLtFz35Q18r7MogK+vcncH0M=;");
+        //}
+
+        Task IDispatcher.Enqueue(Guid customerId, Guid ticketId)
+        {
+            return _reliableDispatcher.EnqueueAsync(new Tuple<Guid, Guid>(customerId, ticketId));
         }
 
         /// <summary>
@@ -34,7 +55,7 @@ namespace Dispatcher
         /// <returns>A collection of listeners.</returns>
         protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
         {
-            return new ServiceReplicaListener[0];
+            return new[] { new ServiceReplicaListener(this.CreateServiceRemotingListener) };
         }
 
         /// <summary>
@@ -44,31 +65,19 @@ namespace Dispatcher
         /// <param name="cancellationToken">Canceled when Service Fabric needs to shut down this service replica.</param>
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
-            // TODO: Replace the following sample code with your own logic 
-            //       or remove this RunAsync override if it's not needed in your service.
+            await _reliableDispatcher.RunAsync(Dispatch, cancellationToken);
+        }
 
-            var myDictionary = await this.StateManager.GetOrAddAsync<IReliableDictionary<string, long>>("myDictionary");
+        private async Task Dispatch(ITransaction transaction, Tuple<Guid, Guid> message, CancellationToken cancellationtoken)
+        {
+            var configurationPackage = Context.CodePackageActivationContext.GetConfigurationPackageObject("Config");
+            var serviceBusSection = configurationPackage.Settings.Sections["ServiceBus"];
+            var connectionString = serviceBusSection.Parameters["ConnectionString"].Value;
+            var queueName = serviceBusSection.Parameters["QueueName"].Value;
 
-            while (true)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                using (var tx = this.StateManager.CreateTransaction())
-                {
-                    var result = await myDictionary.TryGetValueAsync(tx, "Counter");
-
-                    ServiceEventSource.Current.ServiceMessage(this.Context, "Current Counter Value: {0}",
-                        result.HasValue ? result.Value.ToString() : "Value does not exist.");
-
-                    await myDictionary.AddOrUpdateAsync(tx, "Counter", 0, (key, value) => ++value);
-
-                    // If an exception is thrown before calling CommitAsync, the transaction aborts, all changes are 
-                    // discarded, and nothing is saved to the secondary replicas.
-                    await tx.CommitAsync();
-                }
-
-                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
-            }
+            var client = QueueClient.CreateFromConnectionString(connectionString, queueName);
+            var brokeredMessage = new BrokeredMessage(message);
+            await client.SendAsync(brokeredMessage);
         }
     }
 }

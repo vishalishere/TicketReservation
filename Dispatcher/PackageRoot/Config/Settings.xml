@@ -13,4 +13,8 @@
     <Parameter Name="MyParameter" Value="Value1" />
   </Section>
   -->
+  <Section Name="ServiceBus">
+    <Parameter Name="ConnectionString" Value="Endpoint=sb://ticketreservation.servicebus.windows.net/;SharedAccessKeyName=messages;SharedAccessKey=zu5J5JHAa8MmjU6PtNzZwCUpPSnyaZRVJk9U6a7/XwY=" />
+    <Parameter Name="QueueName" Value="reservations" />
+  </Section>
 </Settings>

@@ -2,6 +2,10 @@
 using System.Diagnostics;
 using System.Threading;
 using Microsoft.ServiceFabric.Services.Runtime;
+using System.Fabric;
+using Microsoft.ServiceFabric.Data;
+using MicroServiceFabric.Dispatcher;
+using Microsoft.ServiceFabric.Data.Collections;
 
 namespace Dispatcher
 {
@@ -19,8 +23,7 @@ namespace Dispatcher
                 // When Service Fabric creates an instance of this service type,
                 // an instance of the class is created in this host process.
 
-                ServiceRuntime.RegisterServiceAsync("DispatcherType",
-                    context => new Dispatcher(context)).GetAwaiter().GetResult();
+                ServiceRuntime.RegisterServiceAsync("DispatcherType", context => new Dispatcher(context)).GetAwaiter().GetResult();
 
                 ServiceEventSource.Current.ServiceTypeRegistered(Process.GetCurrentProcess().Id, typeof(Dispatcher).Name);
 

@@ -31,7 +31,7 @@
          The attribute ServiceTypeName below must match the name defined in the imported ServiceManifest.xml file. -->
     <Service Name="Dispatcher">
       <StatefulService ServiceTypeName="DispatcherType" TargetReplicaSetSize="[Dispatcher_TargetReplicaSetSize]" MinReplicaSetSize="[Dispatcher_MinReplicaSetSize]">
-        <UniformInt64Partition PartitionCount="[Dispatcher_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
+        <UniformInt64Partition PartitionCount="[Dispatcher_PartitionCount]" LowKey="1" HighKey="1" /> <!--<UniformInt64Partition PartitionCount="[Dispatcher_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />-->
       </StatefulService>
     </Service>
     <Service Name="Tickets">
