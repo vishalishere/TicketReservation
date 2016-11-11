@@ -1,5 +1,7 @@
 ﻿using Customer.Interfaces;
 using Microsoft.ServiceBus.Messaging;
+using Microsoft.ServiceFabric.Actors;
+using Microsoft.ServiceFabric.Actors.Client;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
@@ -17,9 +19,13 @@ namespace Reservation
     /// </summary>
     internal sealed class Reservation : StatefulService
     {
+        private readonly Uri _customerActorUri;
+
         public Reservation(StatefulServiceContext context)
             : base(context)
-        { }
+        {
+            _customerActorUri = new Uri("fabric:/TicketReservation/CustomerActorService");
+        }
 
         /// <summary>
         /// Optional override to create listeners (e.g., HTTP, Service Remoting, WCF, etc.) for this service replica to handle client or user requests.
@@ -51,13 +57,30 @@ namespace Reservation
 
             while (true)
             {
-                var messages = await client.ReceiveBatchAsync(2);
-
-                foreach (var message in messages)
+                try
                 {
-                    var customerReservation = message.GetBody<CustomerReservation>();
+                    var messages = await client.ReceiveBatchAsync(25);
 
-                    await message.CompleteAsync();
+                    foreach (var message in messages)
+                    {
+                        var customerReservation = message.GetBody<CustomerReservation>();
+
+                        if (customerReservation == null)
+                        {
+                            continue;
+                        }
+
+                        var customer = ActorProxy.Create<ICustomer>(new ActorId(customerReservation.CustomerId),
+                            _customerActorUri);
+
+                        await customer.Completed();
+
+                        await message.CompleteAsync();
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw;
                 }
             }
         }

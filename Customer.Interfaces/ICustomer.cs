@@ -13,10 +13,8 @@ namespace Customer.Interfaces
     /// </summary>
     public interface ICustomer : IActor
     {
-        /// <summary>
-        /// Reserve ticket
-        /// </summary>
-        /// <returns></returns>
         Task ReserveTicket();
+
+        Task Completed();
     }
 }

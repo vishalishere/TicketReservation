@@ -26,6 +26,11 @@ namespace Customer
             _dispatcherUri = new Uri("fabric:/TicketReservation/Dispatcher");
         }
 
+        public async Task Completed()
+        {
+            await OnDeactivateAsync();
+        }
+
         protected override async Task OnActivateAsync()
         {
             ActorEventSource.Current.ActorMessage(this, "Actor activated.");
@@ -34,7 +39,7 @@ namespace Customer
         async Task ICustomer.ReserveTicket()
         {
             var random = new Random();
-            var dispatcher = ServiceProxy.Create<IDispatcher>(_dispatcherUri, new ServicePartitionKey(random.Next(1, 3)));
+            var dispatcher = ServiceProxy.Create<IDispatcher>(_dispatcherUri, new ServicePartitionKey(1)); //random.Next(1, 5)
 
             await dispatcher.Enqueue(_customerId, Guid.NewGuid());
         }

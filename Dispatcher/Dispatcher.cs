@@ -21,8 +21,9 @@ namespace Dispatcher
     internal sealed class Dispatcher : StatefulService, IDispatcher
     {
         private readonly IReliableDispatcher<CustomerReservation> _reliableDispatcher;
-        private readonly QueueClient _queueClient;
         private readonly IList<BrokeredMessage> _brokeredMessages;
+        private readonly string _connectionString;
+        private readonly string _queueName;
         //private static readonly MessagingFactory _messagingFactory;
 
         public Dispatcher(StatefulServiceContext context)
@@ -35,10 +36,9 @@ namespace Dispatcher
 
             var configurationPackage = Context.CodePackageActivationContext.GetConfigurationPackageObject("Config");
             var serviceBusSection = configurationPackage.Settings.Sections["ServiceBus"];
-            var connectionString = serviceBusSection.Parameters["ConnectionString"].Value;
-            var queueName = serviceBusSection.Parameters["QueueName"].Value;
+            _connectionString = serviceBusSection.Parameters["ConnectionString"].Value;
+            _queueName = serviceBusSection.Parameters["QueueName"].Value;
 
-            _queueClient = QueueClient.CreateFromConnectionString(connectionString, queueName);
             _brokeredMessages = new List<BrokeredMessage>();
         }
 
@@ -85,9 +85,10 @@ namespace Dispatcher
             var brokeredMessage = new BrokeredMessage(message);
             _brokeredMessages.Add(brokeredMessage);
 
-            if (_brokeredMessages.Count == 10)
+            if (_brokeredMessages.Count == 50)
             {
-                await _queueClient.SendBatchAsync(_brokeredMessages);
+                var queueClient = QueueClient.CreateFromConnectionString(_connectionString, _queueName);
+                await queueClient.SendBatchAsync(_brokeredMessages);
                 _brokeredMessages.Clear();
             }
         }
