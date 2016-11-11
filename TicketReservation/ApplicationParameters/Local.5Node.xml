@@ -4,7 +4,7 @@
     <Parameter Name="Reservation_PartitionCount" Value="5" />
     <Parameter Name="Reservation_MinReplicaSetSize" Value="1" />
     <Parameter Name="Reservation_TargetReplicaSetSize" Value="1" />
-    <Parameter Name="Dispatcher_PartitionCount" Value="1" />
+    <Parameter Name="Dispatcher_PartitionCount" Value="5" />
     <Parameter Name="Dispatcher_MinReplicaSetSize" Value="1" />
     <Parameter Name="Dispatcher_TargetReplicaSetSize" Value="1" />
     <Parameter Name="Tickets_InstanceCount" Value="1" />
