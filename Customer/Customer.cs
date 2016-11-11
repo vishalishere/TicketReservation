@@ -32,8 +32,9 @@ namespace Customer
         }
 
         async Task ICustomer.ReserveTicket()
-        {            
-            var dispatcher = ServiceProxy.Create<IDispatcher>(_dispatcherUri, new ServicePartitionKey(1));
+        {
+            var random = new Random();
+            var dispatcher = ServiceProxy.Create<IDispatcher>(_dispatcherUri, new ServicePartitionKey(random.Next(1, 3)));
 
             await dispatcher.Enqueue(_customerId, Guid.NewGuid());
         }

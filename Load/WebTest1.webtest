@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <WebTest Name="WebTest1" Id="397f71cf-7e92-4311-994f-6306b87b330b" Owner="" Priority="2147483647" Enabled="True" CssProjectStructure="" CssIteration="" Timeout="0" WorkItemIds="" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010" Description="" CredentialUserName="" CredentialPassword="" PreAuthenticate="True" Proxy="default" StopOnError="False" RecordedResultFile="" ResultsLocale="">
   <Items>
-    <Request Method="POST" Guid="3d5b0d8b-f798-4f88-a458-0481504fc8fe" Version="1.1" Url="http://localhost:8426/api/tickets" ThinkTime="0" Timeout="300" ParseDependentRequests="True" FollowRedirects="True" RecordResult="True" Cache="False" ResponseTimeGoal="0" Encoding="utf-8" ExpectedHttpStatusCode="0" ExpectedResponseUrl="" ReportingName="" IgnoreHttpStatusCode="False">
+    <Request Method="POST" Guid="3d5b0d8b-f798-4f88-a458-0481504fc8fe" Version="1.1" Url="http://reservations.northeurope.cloudapp.azure.com:8426/api/tickets" ThinkTime="0" Timeout="300" ParseDependentRequests="True" FollowRedirects="True" RecordResult="True" Cache="False" ResponseTimeGoal="0" Encoding="utf-8" ExpectedHttpStatusCode="0" ExpectedResponseUrl="" ReportingName="" IgnoreHttpStatusCode="False">
       <StringHttpBody ContentType="application/json" InsertByteOrderMark="False">
       </StringHttpBody>
     </Request>

@@ -99,6 +99,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Customer.Interfaces\Customer.Interfaces.csproj">
+      <Project>{d891b205-bfbd-42ab-9b5a-768d6785bf5d}</Project>
+      <Name>Customer.Interfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Dispatcher.Interfaces\Dispatcher.Interfaces.csproj">
       <Project>{6ba76f87-b205-4741-bfbf-ddfa7a07bb26}</Project>
       <Name>Dispatcher.Interfaces</Name>
